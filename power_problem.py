@@ -19,13 +19,86 @@ It's good geeky fun.  Enjoy
 
 FOR ALL THE RATES, ONLY USE THE BUNDLED VALUES (NOT DELIVERY).  This rate includes transmission fees and grid fees that are part of the true rate.
 '''
+import csv
+import matplotlib.pyplot as plt
+import numpy as np
+from operator import itemgetter
+import matplotlib.patches as mpatches
 
-#1  What is the average residential rate for YOUR zipcode? You will need to read the power_data into your program to answer this.  (7pts)
 
-#2 What is the MEDIAN rate for all BUNDLED RESIDENTIAL rates in Illinois? Use the data you extracted to check all "IL" zipcodes to answer this. (10pts)
+#1  What is the average residential rate for YOUR zipcode? You will need to read the power_data into your program to answer this.  (7pts) √
+file = open("power_data.csv", "r")
 
-#3 What city in Illinois has the lowest residential rate?  Which has the highest?  You will need to go through the database and compare each value for this one. Then you will need to reference the zipcode dataset to get the city.  (15pts)
+# Putting the file in a list
+power_data = []
+reader = csv.reader(file, delimiter = ',')
+for line in reader:
+    power_data.append(line)
 
+# Taking the labels off of the front of list to make the numbers easier to work with.
+headers = power_data[0]
+powdat = power_data[1:]
+print("\nHeaders list: ",end="")
+print(headers, "\n")
+
+print(powdat[:5])
+print()
+
+for i in range(len(powdat)):
+    if powdat[i][0] == "60614" and powdat[i][4] == "Bundled":
+        print("Average bundled residential rate for 60614 =" , powdat[i][-1], "\n")
+
+
+#2 What is the MEDIAN (floor division) rate for all BUNDLED RESIDENTIAL rates in Illinois? Use the data you extracted to check all "IL" zipcodes to answer this. (10pts)
+import statistics
+# sort by rate
+il_list = []
+
+# len index floor two and look at the rate at that position
+for i in range(len(powdat)):
+    if powdat[i][3] == "IL" and powdat[i][4] == "Bundled":
+        il_list.append(powdat[i][8])
+
+il_list.sort()
+#print("SORTED:", end= "")
+#print(il_list)
+
+#do a float conversion
+for i in range(len(il_list)):
+    il_list[i] = float(il_list[i])
+
+bundled_rates = []
+for i in range(len(powdat)):
+    if powdat[i][4] == "Bundled" and powdat[i][3] == "IL":
+        bundled_rates.append(power_data[i][8])
+
+medbundledrates = statistics.median(bundled_rates)
+
+print("The median bundled residential rate in Illinois is", medbundledrates)
+print()
+
+#3 What city in Illinois has the lowest residential rate?  Which has the highest?  You will need to go through the database and compare each value for this one.
+# Then you will need to reference the zipcode dataset to get the city.  (15pts)
+res_rates = []
+for i in range(len(powdat)):
+    if powdat[i][4] == "Bundled" and powdat[i][3] == "IL":
+        res_rates.append(powdat[i][-1])
+print("Residential rates IL:" ,res_rates)
+
+# SORT, then find the lowest rate and its zipcode, find which city that zipcode is in
+'''
+res_rates.sort()
+# float conversion
+for i in range(len(res_rates)):
+    res_rates[i] = float(res_rates[i])
+'''
+
+for i in range(len(powdat)):
+    powdat[i][-1] = float(powdat[i][-1])
+powdat.sort(key=itemgetter(-1))
+
+
+print("\nSorted res rates: ")
 
 #FOR #4  CHOOSE ONE OF THE FOLLOWING TWO PROBLEMS. The first one is easier than the second.
 #4  (Easier) USING ONLY THE ZIP CODE DATA... Make a scatterplot of all the zip codes in Illinois according to their Lat/Long.  Make the marker size vary depending on the population contained in that zip code.  Add an alpha value to the marker so that you can see overlapping markers.
