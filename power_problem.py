@@ -144,4 +144,26 @@ print(res_rates[len(res_rates)-1][-1], "is the highest residential rate in Illin
 # Make the marker size vary depending on the population contained in that zip code.
 # Add an alpha value to the marker so that you can see overlapping markers.
 
+# latitude index is 6 longitude index is 5
+latitude = []
+longitude = []
+set_size = []
 
+for i in range(len(zip_list)):
+    if zip_list[i][3] == "IL":
+        if zip_list[i][10]:
+            latitude.append(float(zip_list[i][6]))
+            longitude.append(float(zip_list[i][5]))
+            set_size.append(float(zip_list[i][10])/25)
+
+plt.figure(1, tight_layout=True, figsize=(6,8))
+plt.scatter(latitude, longitude, set_size, color="red", alpha=.5)
+
+
+
+# Labels
+plt.title("Graph of Illinois zipcodes by population")
+plt.xlabel("Latitude")
+plt.ylabel("Longiturde")
+
+plt.show()
