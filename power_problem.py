@@ -39,14 +39,11 @@ for line in reader:
 headers = power_data[0]
 powdat = power_data[1:]
 print("\nHeaders list: ",end="")
-print(headers, "\n")
-
-print(powdat[:5])
-print()
+print(headers)
 
 for i in range(len(powdat)):
     if powdat[i][0] == "60614" and powdat[i][4] == "Bundled":
-        print("Average bundled residential rate for 60614 =" , powdat[i][-1], "\n")
+        print("Problem #1: The average bundled residential rate for 60614 =" , powdat[i][-1], "\n")
 
 
 #2 What is the MEDIAN (floor division) rate for all BUNDLED RESIDENTIAL rates in Illinois? Use the data you extracted to check all "IL" zipcodes to answer this. (10pts)
@@ -74,34 +71,77 @@ for i in range(len(powdat)):
 
 medbundledrates = statistics.median(bundled_rates)
 
-print("The median bundled residential rate in Illinois is", medbundledrates)
+print("Problem #2: The median bundled residential rate in Illinois is", medbundledrates)
 print()
 
 #3 What city in Illinois has the lowest residential rate?  Which has the highest?  You will need to go through the database and compare each value for this one.
 # Then you will need to reference the zipcode dataset to get the city.  (15pts)
+
 res_rates = []
 for i in range(len(powdat)):
     if powdat[i][4] == "Bundled" and powdat[i][3] == "IL":
-        res_rates.append(powdat[i][-1])
-print("Residential rates IL:" ,res_rates)
+        res_rates.append(powdat[i])
 
-# SORT, then find the lowest rate and its zipcode, find which city that zipcode is in
-'''
-res_rates.sort()
 # float conversion
 for i in range(len(res_rates)):
-    res_rates[i] = float(res_rates[i])
-'''
+    res_rates[i][8] = float(res_rates[i][8])
 
-for i in range(len(powdat)):
-    powdat[i][-1] = float(powdat[i][-1])
-powdat.sort(key=itemgetter(-1))
+# Sorting the items in the list by the residential rate
+res_rates = sorted(res_rates, key=lambda x: x[8])
+
+# Finding what zip code the highest and lowest rates are in
+lowest_rate_zip = res_rates[0][0]
+highest_rate_zip = res_rates[len(res_rates)-1][0]
+
+print("Lowest rate's zip code:", lowest_rate_zip, "and Highest rate's zip code:" , highest_rate_zip)
+
+# Bringing in the data from the zipcode database
+file = open("free-zipcode-database-Primary.csv", "r")
+zip_list = []
+reader = csv.reader(file, delimiter=',')
+for line in reader:
+    zip_list.append(line)
+
+# Cutting the headers off of the list
+headers2 = zip_list[0]
+#print(headers2)
+zip_list = zip_list[1:]
+
+# Making a list of only cities in Illinois
+il_zip_list = []
+for i in range(len(zip_list)):
+    if zip_list[i][3] == "IL":
+        il_zip_list.append(zip_list[i])
+
+# Zipcodes are key 0 and cities are key 2
+
+# Creating a binary search function to find the city names
+def binary_search(input_key, list):
+    upper_bound = len(list) - 1
+    lower_bound = 0
+    key = input_key.upper()
+    found = False
+    while lower_bound <= upper_bound and not found:
+        middle_pos = (lower_bound + upper_bound) // 2
+        if list[middle_pos][0] < key:
+            lower_bound = middle_pos + 1
+        elif list[middle_pos][0] > key:
+            upper_bound = middle_pos - 1
+        else:
+            found = True
+    return middle_pos
+
+lowest_rate_city =(il_zip_list[binary_search(lowest_rate_zip, il_zip_list)][2])
+highest_rate_city =(il_zip_list[binary_search(highest_rate_zip, il_zip_list)][2])
 
 
-print("\nSorted res rates: ")
+print()
+print("Problem #3:",res_rates[0][-1], "is the lowest residential rate in Illinois, in", lowest_rate_city)
+print(res_rates[len(res_rates)-1][-1], "is the highest residential rate in Illinois, in", highest_rate_city)
 
-#FOR #4  CHOOSE ONE OF THE FOLLOWING TWO PROBLEMS. The first one is easier than the second.
-#4  (Easier) USING ONLY THE ZIP CODE DATA... Make a scatterplot of all the zip codes in Illinois according to their Lat/Long.  Make the marker size vary depending on the population contained in that zip code.  Add an alpha value to the marker so that you can see overlapping markers.
 
-#4 (Harder) USING BOTH THE ZIP CODE DATA AND THE POWER DATA... Make a scatterplot of all zip codes in Illinois according to their Lat/Long.  Make the marker red for the top 25% in residential power rate.  Make the marker yellow for the middle 25 to 50 percentile. Make the marker green if customers pay a rate in the bottom 50% of residential power cost.  This one is very challenging.  You are using data from two different datasets and merging them into one.  There are many ways to solve. (20pts)
+#4  (Easier) USING ONLY THE ZIP CODE DATA... Make a scatterplot of all the zip codes in Illinois according to their Lat/Long.
+# Make the marker size vary depending on the population contained in that zip code.
+# Add an alpha value to the marker so that you can see overlapping markers.
+
 
